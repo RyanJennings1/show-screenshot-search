@@ -2,9 +2,11 @@ package main
 
 import(
 	"fmt"
-	"io/ioutil"
 	"os"
+
+	"github.com/abema/go-mp4"
 )
+//"io/ioutil"
 
 func main() {
 	// Handle flags
@@ -45,11 +47,21 @@ Commands:
 // TODO: Load video file
 func loadVideo(filename string) {
 	fmt.Printf("Loading video %s ...\n", filename)
-	data, err := ioutil.ReadFile(filename)
+  file, err := os.Open(filename)
 	if err != nil {
 		fmt.Printf("Error %v", err)
 		panic(err)
 	}
-	//fmt.Print(string(data))
-	fmt.Print(data[:10])
+	defer file.Close()
+
+	_, h_err := mp4.ReadBoxStructure(file, func(h *mp4.ReadHandle) (interface{}, error) {
+		fmt.Println("Size", h.BoxInfo.Size)
+		return nil, nil
+	})
+	if h_err != nil {
+    fmt.Printf("Error %v", err)
+		panic(err)
+	}
+
+	file.Close()
 }
