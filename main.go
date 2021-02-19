@@ -3,10 +3,9 @@ package main
 import(
 	"fmt"
 	"os"
-
-	"github.com/abema/go-mp4"
+	"os/exec"
+	"strings"
 )
-//"io/ioutil"
 
 func main() {
 	// Handle flags
@@ -19,14 +18,13 @@ func main() {
 
 	switch cmd {
 	  case "-f", "--file":
-			loadVideo(args[0])
+			framesFromVideo(args[0])
 	  case "", "-h", "--help":
 		  usage()
 		default:
 			fmt.Printf("Unknown command %s\n", cmd)
 			fmt.Errorf("Unknown command %s\n", cmd)
 	}
-	// TODO: Split video file into screenshots
 	// TODO: return/output video file information
 }
 
@@ -44,24 +42,38 @@ Commands:
 	`)
 }
 
-// TODO: Load video file
-func loadVideo(filename string) {
-	fmt.Printf("Loading video %s ...\n", filename)
-  file, err := os.Open(filename)
+func framesFromVideo(filename string) (string, error) {
+	fmt.Printf("Extracting frames from %s\n", filename)
+	ffmpegPath, err := exec.LookPath("ffmpeg")
 	if err != nil {
-		fmt.Printf("Error %v", err)
-		panic(err)
-	}
-	defer file.Close()
-
-	_, h_err := mp4.ReadBoxStructure(file, func(h *mp4.ReadHandle) (interface{}, error) {
-		fmt.Println("Size", h.BoxInfo.Size)
-		return nil, nil
-	})
-	if h_err != nil {
-    fmt.Printf("Error %v", err)
-		panic(err)
+		fmt.Printf("Error: FFMPEG was not found\n%s\n", err)
+		return "", err
 	}
 
-	file.Close()
+	fname := strings.Split(strings.Split(filename, "videos/")[1], ".")[0]
+	framesOutPath := "frames/" + fname + "%4d.png"
+	buildFfmpegCmd := &exec.Cmd {
+		Path: ffmpegPath,
+		Args: []string{
+			ffmpegPath,
+			"-ss",
+			"00:00:00",
+			"-i",
+			filename,
+			"-r",
+			"5.0",
+			framesOutPath,
+		},
+		Stdout: os.Stdout,
+		Stderr: os.Stdout,
+	}
+
+	fmt.Printf("Running command: %s\n", buildFfmpegCmd.String())
+	if err := buildFfmpegCmd.Run(); err != nil {
+		fmt.Printf("Error: FFMPEG command failed\n%s\n", err)
+		return "", err
+	}
+	fmt.Println("Frames generated")
+	return "", nil
 }
+
