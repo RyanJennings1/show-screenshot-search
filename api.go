@@ -36,8 +36,16 @@ func getFrames(w http.ResponseWriter, req *http.Request) {
 	key := keys[0]
 
 	if strings.Contains(key, ",") {
-    fmt.Fprintf(w, "get frames: " + key)
-		return
+		nums := strings.Split(key, ",")
+		if len(nums) > 1 {
+			if _, err := strconv.Atoi(nums[1]); err == nil {
+				fmt.Fprintf(w, "get frames: " + nums[0] + "-" + nums[1])
+				return
+			} else {
+				fmt.Fprintf(w, "get frames: " + nums[0] + "-end")
+				return
+			}
+		}
 	} else if _, err := strconv.Atoi(key); err == nil {
 		fmt.Fprintf(w, "get just frame: " + key)
 		return
