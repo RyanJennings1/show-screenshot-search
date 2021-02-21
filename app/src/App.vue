@@ -1,17 +1,32 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <v-container>
+      <v-row no-gutters>
+        <v-col cols="12" sm="6" md="6">
+          <v-card class="pa-2" outlined tile>
+            <MainImage />
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="6" md="6">
+          <v-card class="pa-2" outlined tile>
+            <ImagesCarousel />
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import MainImage from './components/MainImage.vue'
+import ImagesCarousel from './components/ImagesCarousel.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    MainImage,
+    ImagesCarousel
   }
 }
 </script>
