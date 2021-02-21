@@ -1,15 +1,22 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	/*"io"*/
 	"log"
 	"net/http"
+	/*"os"*/
 	"path"
 	"strconv"
 	"strings"
 )
 
 type Frames string
+
+type P struct {
+	Data string
+}
 
 func headers(w http.ResponseWriter, req *http.Request) {
 	for name, headers := range req.Header {
@@ -48,11 +55,26 @@ func getFrames(w http.ResponseWriter, req *http.Request) {
 		}
 	} else if _, err := strconv.Atoi(key); err == nil {
 		fmt.Fprintf(w, "get just frame: " + key)
+		/*
+		img, err := os.Open("frames/test0001.png")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer img.Close()
+		w.Header().Set("Content-Type", "image/png")
+		io.Copy(w, img)
+		*/
+		w.Header().Set("Content-Type", "application/json")
+		p := &P{
+			Data: "test msg",
+		}
+		json.NewEncoder(w).Encode(p)
 		return
   } else {
 		fmt.Fprintf(w, "Key error: " + key)
 		return
 	}
+	return
 }
 
 func startServer() {
